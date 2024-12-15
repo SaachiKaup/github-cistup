@@ -1,36 +1,40 @@
 import networkx as nx
 import osmnx as ox
 import streamlit as st
+from locator import lat_lng_from_address
 
 PLACE = "Bangalore, India"
 
-G = ox.graph_from_place(PLACE, network_type="all")
+@st.cache_resource
+def graph(place: str):
+    return ox.graph_from_place(place, network_type="all")
 
-#'''
-#G = ox.routing.add_edge_speeds(G)
-#G = ox.routing.add_edge_travel_times(G)
+G = graph(PLACE)
+
+source_address = st.text_input("Enter Source Address")
+dest_address = st.text_input("Enter Destination Address")
+
+def is_valid_address(lat: float, lng: float) -> bool:
+    return lat and lng
+
+if source_address and dest_address:
+    from_lat, from_long = lat_lng_from_address(source_address)
+    to_lat, to_long = lat_lng_from_address(dest_address)
+    print(from_lat, from_long)
+    print(to_lat, to_long)
+
+    if is_valid_address(from_lat, from_long) and is_valid_address(to_lat, to_long):
+        src_node = ox.nearest_nodes(G, from_lat, from_long) 
+        dest_node = ox.nearest_nodes(G, to_lat, to_long) 
+
+        st.write(src_node, dest_node)
+
+
+
+#orig_node = ox.nearest_nodes(G, X0, Y0)
+#dest_node = ox.nearest_nodes(G, X[0], Y[0])
 #
-#gdf_nodes, gdf_edges = ox.graph_to_gdfs(G)
+#route = ox.shortest_path(G, orig_node, dest_node, weight="length")
+#fig, ax = ox.plot_graph_route(G, route, route_color="y", route_linewidth=6, node_size=0)
 #
-#divyasree_coords = (12.94838590023717, 77.69309112318902)
-#iisc_coords = (13.017108084382844, 77.56712358271811)
-#
-#orig = ox.distance.nearest_nodes(G, X = divyasree_coords[0], Y = divyasree_coords[1])
-#dest =  ox.distance.nearest_nodes(G, X = iisc_coords[0], Y = iisc_coords[1])
-#
-#k_routes = ox.k_shortest_paths(G, orig, dest, 30, weight="length")
-#'''
-points = ox.utils_geo.sample_points(ox.convert.to_undirected(G), n=100)
-
-X = points.x.values
-Y = points.y.values
-X0 = X.mean()
-Y0 = Y.mean()
-
-orig_node = ox.nearest_nodes(G, X0, Y0)
-dest_node = ox.nearest_nodes(G, X[0], Y[0])
-
-route = ox.shortest_path(G, orig_node, dest_node, weight="length")
-fig, ax = ox.plot_graph_route(G, route, route_color="y", route_linewidth=6, node_size=0)
-
-st.pyplot(fig)
+#st.pyplot(fig)

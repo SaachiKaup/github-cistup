@@ -1,18 +1,8 @@
 from geopy.geocoders import Nominatim
 
+LOCATOR = Nominatim(user_agent = "myapp")
 
-'''
-address = input()
-locator = Nominatim(user_agent = "myapp")
-location = locator.geocode(address)
+def lat_lng_from_address(address: str) -> [float, float]:
+    location = LOCATOR.geocode(address)
+    return (location.latitude, location.longitude)
 
-print(location)
-'''
-
-
-import geocoder
-
-g = geocoder.google(input())
-print(g)
-
-print(g.latlng)

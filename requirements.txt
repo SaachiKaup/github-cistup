@@ -1,3 +1,4 @@
+anaconda-anon-usage
 archspec
 boltons
 Brotli
